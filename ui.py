@@ -214,7 +214,12 @@ class BAM_PT_workspace_manager(Panel):
             "object_mode"
         )
 
+
         if workspace_data:
+            root.prop(
+                workspace_data,
+                "fallback_mode"
+            )
 
             row = root.row(align=True)
             row.template_list("CUSTOM_UL_addon_list",

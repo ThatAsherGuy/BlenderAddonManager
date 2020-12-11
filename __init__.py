@@ -56,19 +56,20 @@ class BAMAddonData(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name="Addon Name", default="Undefined")
 
     filter_items = [
-        ("NOT", "Unfiltered", "Not filtered", 'REMOVE', 1),
-        ("INCLUDE", "Whitelisted", "Included in Workspace", 'CHECKMARK', 2),
-        ("EXCLUDE", "Blacklisted", "Excluded from Workspace", 'X', 3),
+        ("NONE", "Unfiltered", "Not filtered", 'REMOVE', 1),
+        ("INCLUDE", "Include", "Included in Workspace", 'CHECKMARK', 2),
+        ("EXCLUDE", "Exclude", "Excluded from Workspace", 'X', 3),
     ]
     filter_mode: bpy.props.EnumProperty(
         items = filter_items,
         name="Filter Mode",
-        default='NOT',
+        default='NONE',
         )
 
 
 class BAMWorkspaceData(bpy.types.PropertyGroup):
     name: bpy.props.StringProperty(name="Workspace Name", default="Undefined")
+
     addons: bpy.props.CollectionProperty(
         type=BAMAddonData,
         name="Tracked Addons"
@@ -77,6 +78,17 @@ class BAMWorkspaceData(bpy.types.PropertyGroup):
         name="Add-on Index",
         default=0,
     )
+
+    fallback_items = [
+        ("NONE", "Unfiltered", "Not filtered", 'REMOVE', 1),
+        ("INCLUDE", "Include", "Included in Workspace", 'CHECKMARK', 2),
+        ("EXCLUDE", "Exclude", "Excluded from Workspace", 'X', 3),
+    ]
+    fallback_mode: bpy.props.EnumProperty(
+        items = fallback_items,
+        name="Filter Mode",
+        default='NONE',
+        )
 
 
 class BAMPreferences(bpy.types.AddonPreferences):

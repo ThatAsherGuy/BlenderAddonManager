@@ -93,8 +93,6 @@ class BAM_OT_ModifyFilter(bpy.types.Operator):
                 break
         
         if workspace_data:
-            print("YESSSSS")
-
             target_addon = None
             for addon in workspace_data.addons:
                 if addon.name == self.addon:
@@ -127,6 +125,7 @@ class BAM_OT_ApplyWorkspaceFilters(bpy.types.Operator):
         prefs = addons["BlenderAddonManager"].preferences
 
         for space in prefs.workspaces:
+            do_fallback = True if not space.fallback_mode == 'NONE' else False
             workspace = bpy.context.blend_data.workspaces[space.name]
             owner_ids = {owner_id.name for owner_id in workspace.owner_ids}
             ignore = []
@@ -160,21 +159,28 @@ class BAM_OT_ApplyWorkspaceFilters(bpy.types.Operator):
                             )
                         ignore.append(addon.name)
 
-                for name in ignore:
-                    print(name)
+                if do_fallback:
+                    for addon in addons:
 
-                for addon in addons:
-                    module = sys.modules.get(addon.module)
-                    if not module.__addon_enabled__:
-                        continue
+                        module = sys.modules.get(addon.module)
+                        if not module.__addon_enabled__:
+                            continue
 
-                    key = addon_utils.module_bl_info(module)["name"]
-                    if not key in ignore:
-                        bpy.ops.wm.owner_enable(
-                            'INVOKE_DEFAULT',
-                            False,
-                            owner_id=module.__name__
-                        )
+                        key = addon_utils.module_bl_info(module)["name"]
+                        if not key in ignore:
+                            if space.fallback_mode == 'INCLUDE':
+                                bpy.ops.wm.owner_enable(
+                                    'INVOKE_DEFAULT',
+                                    False,
+                                    owner_id=module.__name__
+                                )
+                            else:
+                                if addon.module in owner_ids:
+                                    bpy.ops.wm.owner_disable(
+                                        'INVOKE_DEFAULT',
+                                        False,
+                                        owner_id=module.__name__
+                                    )
 
         return {'FINISHED'}
 
