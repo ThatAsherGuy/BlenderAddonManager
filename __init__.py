@@ -98,10 +98,10 @@ properties = (
     BAMPreferences,
 )
 
+
 def evil():
     victim = bpy.types.SpaceProperties
 
-    
 
 def register():
     for cls in classes:

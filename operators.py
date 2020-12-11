@@ -128,6 +128,8 @@ class BAM_OT_ApplyWorkspaceFilters(bpy.types.Operator):
 
         for space in prefs.workspaces:
             workspace = bpy.context.blend_data.workspaces[space.name]
+            owner_ids = {owner_id.name for owner_id in workspace.owner_ids}
+            ignore = []
 
             if not workspace:
                 continue
@@ -140,7 +142,6 @@ class BAM_OT_ApplyWorkspaceFilters(bpy.types.Operator):
 
                     if not addon_module:
                         print(addon.name)
-                        print("yip")
                         continue
 
                     if addon.filter_mode == 'INCLUDE':
@@ -149,20 +150,31 @@ class BAM_OT_ApplyWorkspaceFilters(bpy.types.Operator):
                             False,
                             owner_id=addon_module.__name__
                         )
+                        ignore.append(addon.name)
                     elif addon.filter_mode == 'EXCLUDE':
-                        bpy.ops.wm.owner_disable(
+                        if addon_module.__name__ in owner_ids:
+                            bpy.ops.wm.owner_disable(
+                                'INVOKE_DEFAULT',
+                                False,
+                                owner_id=addon_module.__name__
+                            )
+                        ignore.append(addon.name)
+
+                for name in ignore:
+                    print(name)
+
+                for addon in addons:
+                    module = sys.modules.get(addon.module)
+                    if not module.__addon_enabled__:
+                        continue
+
+                    key = addon_utils.module_bl_info(module)["name"]
+                    if not key in ignore:
+                        bpy.ops.wm.owner_enable(
                             'INVOKE_DEFAULT',
                             False,
-                            owner_id=addon_module.__name__
+                            owner_id=module.__name__
                         )
-
-
-
-                    
-
-
-        new_filter = prefs.workspaces.add()
-        new_filter.name = self.workspace
 
         return {'FINISHED'}
 
@@ -180,4 +192,6 @@ class BAM_OT_printstuff(bpy.types.Operator):
                 property_space = space
 
         print(dir(property_space.context))
+        property_space.context = 'SHADERFX'
+
         return {'FINISHED'}

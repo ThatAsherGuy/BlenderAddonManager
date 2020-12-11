@@ -217,12 +217,12 @@ class BAM_PT_workspace_manager(Panel):
         if workspace_data:
 
             row = root.row(align=True)
-            row.template_list("CUSTOM_UL_addon_list",      # the class that defines the filter functions and drawing
-                            "",                              # No Clue 
-                            workspace_data,              # Where to get the data
-                            "addons",                    # The data to get
-                            workspace_data,                           # Where the index is
-                            "addon_index",                  # Index name
+            row.template_list("CUSTOM_UL_addon_list",
+                            "",
+                            workspace_data,
+                            "addons",
+                            workspace_data,
+                            "addon_index",
                             rows=1,
                             maxrows=4
                             )
